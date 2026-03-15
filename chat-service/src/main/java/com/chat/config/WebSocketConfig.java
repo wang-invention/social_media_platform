@@ -1,4 +1,4 @@
-package com.chat.test;
+package com.chat.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -1,13 +1,13 @@
-package com.chat;
+package com.user;
 
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-@MapperScan("com.chat.mapper")
-public class ChatServiceApplication {
+@MapperScan("com.user.mapper")
+public class UserServiceApplication {
     public static void main(String[] args) {
-        SpringApplication.run(ChatServiceApplication.class, args);
+        SpringApplication.run(UserServiceApplication.class, args);
     }
 }

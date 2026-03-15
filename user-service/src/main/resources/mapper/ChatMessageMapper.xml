@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.user.mapper.ChatMessageMapper">
+
+    <resultMap id="BaseResultMap" type="com.user.domain.ChatMessage">
+        <id column="id" property="id"/>
+        <result column="sender_id" property="senderId"/>
+        <result column="receiver_id" property="receiverId"/>
+        <result column="content" property="content"/>
+        <result column="message_type" property="messageType"/>
+        <result column="is_read" property="isRead"/>
+        <result column="created_at" property="createdAt"/>
+    </resultMap>
+
+    <select id="selectChatMessages" resultMap="BaseResultMap">
+        SELECT id, sender_id, receiver_id, content, message_type, is_read, created_at
+        FROM chat_message
+        WHERE (sender_id = #{userId} AND receiver_id = #{otherUserId})
+           OR (sender_id = #{otherUserId} AND receiver_id = #{userId})
+        ORDER BY created_at ASC
+    </select>
+
+</mapper>
