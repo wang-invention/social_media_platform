@@ -44,7 +44,7 @@
 
     <build>
         <!-- 项目名（可选，不影响打包） -->
-        <finalName>user-service</finalName>
+        <finalName>user-service:1.0</finalName>
         <plugins>
             <!-- SpringBoot核心打包插件：必须有！生成可执行JAR -->
             <plugin>
