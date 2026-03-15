@@ -1,0 +1,60 @@
+name: 全自动部署前后端项目
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # 1. 部署前端 Vue
+      - name: 构建并部署前端
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: root
+          key: ${{ secrets.SERVER_KEY }}
+          script: |
+            cd /root/wang/chat-vue1
+            git pull
+            npm run build
+            docker stop vue-front || true
+            docker rm vue-front || true
+            docker build -t vue-front:1.0 .
+            docker run -d --name vue-front -p 80:80 vue-front:1.0
+
+      # 2. 部署用户服务 user-service
+      - name: 部署 user-service
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: root
+          key: ${{ secrets.SERVER_KEY }}
+          script: |
+            cd /root/wang/user-service
+            git pull
+            mvn clean package -DskipTests
+            docker stop user-service || true
+            docker rm user-service || true
+            docker build -t user-service:1.0 .
+            docker run -d -p 8081:8081 --name user-service user-service:1.0
+
+      # 3. 部署聊天服务 chat-service
+      - name: 部署 chat-service
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: root
+          key: ${{ secrets.SERVER_KEY }}
+          script: |
+            cd /root/wang/chat-service
+            git pull
+            mvn clean package -DskipTests
+            docker stop chat-service || true
+            docker rm chat-service || true
+            docker build -t chat-service:1.0 .
+            docker run -d -p 8082:8082 --name chat-service chat-service:1.0
