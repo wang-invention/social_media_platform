@@ -48,6 +48,24 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
+    <build>
+        <!-- 项目名（可选，不影响打包） -->
+        <finalName>user-service</finalName>
+        <plugins>
+            <!-- SpringBoot核心打包插件：必须有！生成可执行JAR -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal> <!-- 重打包为可执行JAR -->
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 
 </project>

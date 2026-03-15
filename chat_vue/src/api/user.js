@@ -1,12 +1,12 @@
 import axios from 'axios'
 
 const userRequest = axios.create({
-  baseURL: 'http://localhost:8081',
+  baseURL: 'http://129.211.0.210:8081',
   timeout: 5000
 })
 
 const chatRequest = axios.create({
-  baseURL: 'http://localhost:8082',
+  baseURL: 'http://129.211.0.210:8082',
   timeout: 5000
 })
 
