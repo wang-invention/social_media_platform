@@ -20,7 +20,6 @@ public class ChatController {
         chatMessage.setMessageType(1);
         chatMessage.setIsRead(0);
         chatMessageService.saveChatMessage(chatMessage);
-
         return chatMessage;
     }
 }
