@@ -1,0 +1,18 @@
+server:
+  port: 8080
+  address: 0.0.0.0
+
+spring:
+  kafka:
+    bootstrap-servers: http://129.211.0.210:9092
+    consumer:
+      group-id: chat-group
+      auto-offset-reset: latest
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+  # 👇 就是加这一段！！！
+  cloud:
+    kafka:
+      enabled: false

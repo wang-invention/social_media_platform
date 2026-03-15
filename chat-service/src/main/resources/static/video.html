@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>视频通话（修复版）</title>
+    <style>
+        .box{display:flex;gap:20px;padding:30px;}
+        video{width:400px;height:300px;background:#000;border-radius:10px;}
+        button{padding:10px 20px;margin:5px;background:#007bff;color:white;border:none;border-radius:5px;cursor:pointer;}
+    </style>
+</head>
+<body>
+<h3>视频通话</h3>
+<div class="box">
+    <div>本地视频<video id="localVideo" autoplay muted></video></div>
+    <div>对方视频<video id="remoteVideo" autoplay></video></div>
+</div>
+<button onclick="call()">呼叫</button>
+<button onclick="hangup()">挂断</button>
+
+<script>
+    // 从URL获取参数
+    function getQuery(name) {
+        let params = new URLSearchParams(window.location.search);
+        return params.get(name);
+    }
+
+    const uid = getQuery("uid");
+    const toUid = getQuery("to");
+
+    let localVideo = document.getElementById("localVideo");
+    let remoteVideo = document.getElementById("remoteVideo");
+    let pc, localStream, ws;
+
+    // 连接信令
+    function connectWS() {
+        ws = new WebSocket(`ws://localhost:8080/ws?uid=${uid}&to=${toUid}`);
+        ws.onmessage = e => handleSignaling(e.data);
+    }
+
+    // ====================== 修复摄像头打开逻辑 ======================
+    async function openCamera() {
+        try {
+            // 兼容所有浏览器
+            const getUserMedia = navigator.mediaDevices?.getUserMedia ||
+                navigator.webkitGetUserMedia ||
+                navigator.mozGetUserMedia;
+
+            if (!getUserMedia) {
+                alert("您的浏览器不支持摄像头");
+                return;
+            }
+
+            // 打开摄像头
+            localStream = await navigator.mediaDevices.getUserMedia({
+                video: true,
+                audio: true
+            });
+
+            localVideo.srcObject = localStream;
+        } catch (e) {
+            alert("请允许摄像头权限\n错误：" + e.message);
+            console.error(e);
+        }
+    }
+
+    // 呼叫
+    async function call() {
+        if (!navigator.mediaDevices) {
+            alert("必须 localhost 打开，且浏览器支持HTTPS");
+            return;
+        }
+
+        await openCamera();
+        createPeerConnection();
+
+        let offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+        sendSignaling(JSON.stringify({ type: "offer", sdp: offer }));
+    }
+
+    // 创建WebRTC连接
+    function createPeerConnection() {
+        pc = new RTCPeerConnection({
+            iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
+        });
+
+        localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+
+        pc.ontrack = e => {
+            remoteVideo.srcObject = e.streams[0];
+        };
+
+        pc.onicecandidate = e => {
+            if (e.candidate) {
+                sendSignaling(JSON.stringify({ type: "candidate", candidate: e.candidate }));
+            }
+        };
+    }
+
+    // 处理信令
+    async function handleSignaling(msg) {
+        let data = JSON.parse(msg);
+        if (data.type === "offer") {
+            await createPeerConnection();
+            await pc.setRemoteDescription(data.sdp);
+            let answer = await pc.createAnswer();
+            await pc.setLocalDescription(answer);
+            sendSignaling(JSON.stringify({ type: "answer", sdp: answer }));
+        }
+        if (data.type === "answer") await pc.setRemoteDescription(data.sdp);
+        if (data.type === "candidate") await pc.addIceCandidate(data.candidate);
+    }
+
+    function sendSignaling(msg) {
+        if (ws && ws.readyState === 1) ws.send(msg);
+    }
+
+    function hangup() {
+        window.location.reload();
+    }
+
+    connectWS();
+</script>
+</body>
+</html>
