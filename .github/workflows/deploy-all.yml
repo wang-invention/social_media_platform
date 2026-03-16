@@ -30,7 +30,6 @@ jobs:
             # 1. 部署前端
             # ==============================================
             cd chat_vue
-            npm run build
             docker stop vue-front || true
             docker rm vue-front || true
             docker rmi vue-front:1.0 || true
