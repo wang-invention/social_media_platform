@@ -33,4 +33,16 @@
         WHERE id = #{userId}
     </select>
 
+    <select id="selectByUsername" resultMap="BaseResultMap">
+        SELECT id, username, password, email, phone, nickname, avatar, status, is_online,
+               last_login_time, last_login_ip, created_at, updated_at
+        FROM user
+        WHERE username = #{username}
+    </select>
+
+    <insert id="insertUser" parameterType="com.user.domain.User" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user (username, password, email, phone, nickname, avatar, status, is_online, created_at, updated_at)
+        VALUES (#{username}, #{password}, #{email}, #{phone}, #{nickname}, #{avatar}, 1, 0, NOW(), NOW())
+    </insert>
+
 </mapper>

@@ -9,4 +9,6 @@ import java.util.List;
 public interface UserMapper {
     List<User> selectUserList();
     User selectUserById(@Param("userId") Integer userId);
+    User selectByUsername(@Param("username") String username);
+    int insertUser(User user);
 }

@@ -3,11 +3,10 @@ package com.user.controller;
 import com.user.domain.User;
 import com.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/users")
@@ -24,5 +23,42 @@ public class UserController {
     @GetMapping("/{userId}")
     public User getUserById(@PathVariable Integer userId) {
         return userService.getUserById(userId);
+    }
+
+    @PostMapping("/login")
+    public Map<String, Object> login(@RequestBody Map<String, String> loginData) {
+        String username = loginData.get("username");
+        String password = loginData.get("password");
+        
+        User user = userService.login(username, password);
+        
+        Map<String, Object> result = new HashMap<>();
+        if (user != null) {
+            result.put("success", true);
+            result.put("message", "登录成功");
+            result.put("user", user);
+        } else {
+            result.put("success", false);
+            result.put("message", "用户名或密码错误");
+        }
+        return result;
+    }
+
+    @PostMapping("/register")
+    public Map<String, Object> register(@RequestBody User user) {
+        User existingUser = userService.getUserById(user.getId());
+        
+        Map<String, Object> result = new HashMap<>();
+        if (existingUser != null) {
+            result.put("success", false);
+            result.put("message", "用户名已存在");
+            return result;
+        }
+        
+        User registeredUser = userService.register(user);
+        result.put("success", true);
+        result.put("message", "注册成功");
+        result.put("user", registeredUser);
+        return result;
     }
 }
