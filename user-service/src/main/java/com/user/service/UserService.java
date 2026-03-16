@@ -8,4 +8,5 @@ public interface UserService {
     User getUserById(Integer userId);
     User login(String username, String password);
     User register(User user);
+    void updateHeartbeat(Integer userId);
 }

@@ -45,4 +45,20 @@
         VALUES (#{username}, #{password}, #{email}, #{phone}, #{nickname}, #{avatar}, 1, 0, NOW(), NOW())
     </insert>
 
+    <update id="updateHeartbeat">
+        UPDATE user
+        SET is_online = 1,
+            last_login_time = NOW(),
+            updated_at = NOW()
+        WHERE id = #{userId}
+    </update>
+
+    <update id="updateOfflineUsers">
+        UPDATE user
+        SET is_online = 0,
+            updated_at = NOW()
+        WHERE is_online = 1
+          AND last_login_time &lt; DATE_SUB(NOW(), INTERVAL 30 SECOND)
+    </update>
+
 </mapper>

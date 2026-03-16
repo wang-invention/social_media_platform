@@ -67,3 +67,13 @@ export const register = (data) => {
     data
   })
 }
+
+export const heartbeat = (userId) => {
+  return userRequest({
+    url: '/users/heartbeat',
+    method: 'post',
+    data: {
+      userId
+    }
+  })
+}

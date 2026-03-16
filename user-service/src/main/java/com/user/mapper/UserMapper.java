@@ -11,4 +11,6 @@ public interface UserMapper {
     User selectUserById(@Param("userId") Integer userId);
     User selectByUsername(@Param("username") String username);
     int insertUser(User user);
+    void updateHeartbeat(@Param("userId") Integer userId);
+    void updateOfflineUsers();
 }

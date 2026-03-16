@@ -47,14 +47,15 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { login, register } from '../api/user'
+import { login, register, heartbeat } from '../api/user'
 
 const router = useRouter()
 const formRef = ref(null)
 const isLogin = ref(true)
+let heartbeatInterval = null
 
 const form = ref({
   username: '',
@@ -129,6 +130,7 @@ const handleSubmit = async () => {
             name: user.nickname || user.username,
             avatar: user.avatar
           }))
+          startHeartbeat(user.id)
           router.push('/chat')
         } else {
           isLogin.value = true
@@ -148,6 +150,32 @@ const handleSubmit = async () => {
     }
   })
 }
+
+const sendHeartbeat = async (userId) => {
+  try {
+    await heartbeat(userId)
+  } catch (error) {
+    console.error('发送心跳失败:', error)
+  }
+}
+
+const startHeartbeat = (userId) => {
+  stopHeartbeat()
+  heartbeatInterval = setInterval(() => {
+    sendHeartbeat(userId)
+  }, 10000)
+}
+
+const stopHeartbeat = () => {
+  if (heartbeatInterval) {
+    clearInterval(heartbeatInterval)
+    heartbeatInterval = null
+  }
+}
+
+onUnmounted(() => {
+  stopHeartbeat()
+})
 </script>
 
 <style scoped>

@@ -61,4 +61,20 @@ public class UserController {
         result.put("user", registeredUser);
         return result;
     }
+
+    @PostMapping("/heartbeat")
+    public Map<String, Object> heartbeat(@RequestBody Map<String, Integer> data) {
+        Integer userId = data.get("userId");
+        
+        Map<String, Object> result = new HashMap<>();
+        if (userId != null) {
+            userService.updateHeartbeat(userId);
+            result.put("success", true);
+            result.put("message", "心跳更新成功");
+        } else {
+            result.put("success", false);
+            result.put("message", "用户ID不能为空");
+        }
+        return result;
+    }
 }

@@ -9,6 +9,9 @@
         <div class="chat-name">{{ currentChat.name }}</div>
         <div class="chat-status">{{ currentChat.isOnline === 1 ? '在线' : '离线' }}</div>
       </div>
+      <el-button type="danger" size="small" @click="logout" class="logout-button">
+        退出登录
+      </el-button>
     </div>
 
     <div class="chat-messages" ref="messagesContainer">
@@ -45,13 +48,15 @@
 
 <script setup>
 import { ref, nextTick, onMounted, onUnmounted, watch } from 'vue'
-import { useRoute } from 'vue-router'
-import { getUserById, getCurrentUser, getChatMessages } from '../api/user'
+import { useRoute, useRouter } from 'vue-router'
+import { getUserById, getCurrentUser, getChatMessages, heartbeat } from '../api/user'
 
 const route = useRoute()
+const router = useRouter()
 const inputMessage = ref('')
 const messagesContainer = ref(null)
 const websocket = ref(null)
+let heartbeatInterval = null
 
 const savedUserId = localStorage.getItem('currentUserId')
 const currentUserId = ref(savedUserId ? parseInt(savedUserId) : 2)
@@ -190,6 +195,36 @@ const sendMessage = () => {
   scrollToBottom()
 }
 
+const logout = () => {
+  localStorage.removeItem('currentUserId')
+  localStorage.removeItem('currentUser')
+  disconnectWebSocket()
+  stopHeartbeat()
+  router.push('/login')
+}
+
+const sendHeartbeat = async () => {
+  try {
+    await heartbeat(currentUserId.value)
+  } catch (error) {
+    console.error('发送心跳失败:', error)
+  }
+}
+
+const startHeartbeat = () => {
+  stopHeartbeat()
+  heartbeatInterval = setInterval(() => {
+    sendHeartbeat()
+  }, 10000)
+}
+
+const stopHeartbeat = () => {
+  if (heartbeatInterval) {
+    clearInterval(heartbeatInterval)
+    heartbeatInterval = null
+  }
+}
+
 const scrollToBottom = () => {
   nextTick(() => {
     if (messagesContainer.value) {
@@ -212,10 +247,12 @@ onMounted(() => {
   loadUserInfo(userId)
   loadCurrentUserInfo()
   connectWebSocket()
+  startHeartbeat()
 })
 
 onUnmounted(() => {
   disconnectWebSocket()
+  stopHeartbeat()
 })
 
 watch(() => route.query.userId, (newUserId) => {
@@ -287,6 +324,10 @@ watch(() => route.query.userId, (newUserId) => {
 .chat-status {
   font-size: 12px;
   color: #67c23a;
+}
+
+.logout-button {
+  margin-left: 10px;
 }
 
 .chat-messages {

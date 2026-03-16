@@ -45,4 +45,9 @@ public class UserServiceImpl implements UserService {
         userMapper.insertUser(user);
         return user;
     }
+
+    @Override
+    public void updateHeartbeat(Integer userId) {
+        userMapper.updateHeartbeat(userId);
+    }
 }

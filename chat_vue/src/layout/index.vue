@@ -52,14 +52,16 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { getUserList } from '../api/user'
+import { getUserList, heartbeat } from '../api/user'
 
 const router = useRouter()
 const currentChatId = ref(1)
 const chatList = ref([])
 const currentUser = ref(null)
+let refreshInterval = null
+let heartbeatInterval = null
 
 const friends = computed(() => {
   return chatList.value.filter(user => user.id !== currentUser.value?.id)
@@ -112,9 +114,52 @@ const loadCurrentUser = () => {
   }
 }
 
+const sendHeartbeat = async () => {
+  try {
+    await heartbeat(currentUser.value.id)
+  } catch (error) {
+    console.error('发送心跳失败:', error)
+  }
+}
+
+const startHeartbeat = () => {
+  stopHeartbeat()
+  heartbeatInterval = setInterval(() => {
+    sendHeartbeat()
+  }, 10000)
+}
+
+const stopHeartbeat = () => {
+  if (heartbeatInterval) {
+    clearInterval(heartbeatInterval)
+    heartbeatInterval = null
+  }
+}
+
+const startRefresh = () => {
+  stopRefresh()
+  refreshInterval = setInterval(() => {
+    loadUserList()
+  }, 15000)
+}
+
+const stopRefresh = () => {
+  if (refreshInterval) {
+    clearInterval(refreshInterval)
+    refreshInterval = null
+  }
+}
+
 onMounted(() => {
   loadUserList()
   loadCurrentUser()
+  startHeartbeat()
+  startRefresh()
+})
+
+onUnmounted(() => {
+  stopHeartbeat()
+  stopRefresh()
 })
 </script>
 
