@@ -24,6 +24,7 @@ jobs:
             npm run build
             docker stop vue-front || true
             docker rm vue-front || true
+            docker rmi vue-front:1.0
             docker build -t vue-front:1.0 .
             docker run -d --name vue-front -p 80:80 vue-front:1.0
 
@@ -40,6 +41,7 @@ jobs:
             mvn clean package -DskipTests
             docker stop user-service || true
             docker rm user-service || true
+            docker rmi user-service:1.0
             docker build -t user-service:1.0 .
             docker run -d -p 8081:8081 --name user-service user-service:1.0
 
@@ -56,5 +58,6 @@ jobs:
             mvn clean package -DskipTests
             docker stop chat-service || true
             docker rm chat-service || true
+            docker rmi chat-service:1.0
             docker build -t chat-service:1.0 .
             docker run -d -p 8082:8082 --name chat-service chat-service:1.0
