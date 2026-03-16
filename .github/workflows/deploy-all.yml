@@ -35,6 +35,18 @@ jobs:
             docker rmi vue-front:1.0 || true
             docker build -t vue-front:1.0 .
             docker run -d --name vue-front -p 80:80 vue-front:1.0
+            
+            
+            # ==============================================
+            # 2. 部署 social-gateway
+            # ==============================================
+            cd ../social-gateway
+            mvn clean package -DskipTests -s settings.xml
+            docker stop social-gateway || true
+            docker rm social-gateway || true
+            docker rmi social-gateway:1.0 || true
+            docker build -t social-gateway:1.0 .
+            docker run -d -p 8080:8080 --name social-gateway social-gateway:1.0
 
             # ==============================================
             # 2. 部署 user-service
