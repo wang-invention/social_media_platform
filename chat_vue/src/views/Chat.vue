@@ -7,7 +7,7 @@
       </div>
       <div class="chat-info">
         <div class="chat-name">{{ currentChat.name }}</div>
-        <div class="chat-status">在线</div>
+        <div class="chat-status">{{ currentChat.isOnline === 1 ? '在线' : '离线' }}</div>
       </div>
     </div>
 
@@ -132,7 +132,8 @@ const loadUserInfo = async (userId) => {
     currentChat.value = {
       id: user.id,
       name: user.nickname || user.username,
-      avatar: user.avatar
+      avatar: user.avatar,
+      isOnline: user.isOnline
     }
   } catch (error) {
     console.error('获取用户信息失败:', error)

@@ -7,7 +7,7 @@
         </div>
         
         <div class="current-user" v-if="currentUser">
-          <div class="current-user-info" @click="showUserSwitcher = !showUserSwitcher">
+          <div class="current-user-info">
             <div class="user-avatar">
               <img v-if="currentUser.avatar" :src="currentUser.avatar" :alt="currentUser.name" />
               <span v-else>{{ currentUser.name.charAt(0) }}</span>
@@ -16,43 +16,28 @@
               <div class="user-name">{{ currentUser.name }}</div>
               <div class="user-id">当前用户</div>
             </div>
-            <div class="switch-icon">▼</div>
-          </div>
-          
-          <div class="user-switcher" v-if="showUserSwitcher">
-            <div class="switcher-header">切换用户</div>
-            <div 
-              v-for="user in chatList" 
-              :key="user.id" 
-              class="user-option"
-              :class="{ active: currentUser.id === user.id }"
-              @click="switchUser(user)"
-            >
-              <div class="option-avatar">
-                <img v-if="user.avatar" :src="user.avatar" :alt="user.name" />
-                <span v-else>{{ user.name.charAt(0) }}</span>
-              </div>
-              <div class="option-name">{{ user.name }}</div>
-            </div>
           </div>
         </div>
         
-        <div class="chat-list">
-          <div 
-            v-for="chat in chatList" 
-            :key="chat.id" 
-            class="chat-item"
-            :class="{ active: currentChatId === chat.id }"
-            @click="selectChat(chat.id)"
-          >
-            <div class="chat-avatar">
-              <img v-if="chat.avatar" :src="chat.avatar" :alt="chat.name" />
-              <span v-else>{{ chat.name.charAt(0) }}</span>
-              <div v-if="chat.isOnline" class="online-status"></div>
-            </div>
-            <div class="chat-info">
-              <div class="chat-name">{{ chat.name }}</div>
-              <div class="chat-last-message">{{ chat.lastMessage }}</div>
+        <div class="friends-section">
+          <div class="section-header">好友列表</div>
+          <div class="chat-list">
+            <div 
+              v-for="friend in friends" 
+              :key="friend.id" 
+              class="chat-item"
+              :class="{ active: currentChatId === friend.id }"
+              @click="selectChat(friend.id)"
+            >
+              <div class="chat-avatar">
+                <img v-if="friend.avatar" :src="friend.avatar" :alt="friend.name" />
+                <span v-else>{{ friend.name.charAt(0) }}</span>
+                <div class="status-indicator" :class="{ online: friend.isOnline, offline: !friend.isOnline }"></div>
+              </div>
+              <div class="chat-info">
+                <div class="chat-name">{{ friend.name }}</div>
+                <div class="chat-last-message">{{ friend.lastMessage }}</div>
+              </div>
             </div>
           </div>
         </div>
@@ -67,7 +52,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { getUserList } from '../api/user'
 
@@ -75,7 +60,10 @@ const router = useRouter()
 const currentChatId = ref(1)
 const chatList = ref([])
 const currentUser = ref(null)
-const showUserSwitcher = ref(false)
+
+const friends = computed(() => {
+  return chatList.value.filter(user => user.id !== currentUser.value?.id)
+})
 
 const loadUserList = async () => {
   try {
@@ -105,15 +93,6 @@ const selectChat = (id) => {
       }
     })
   }
-}
-
-const switchUser = (user) => {
-  currentUser.value = user
-  localStorage.setItem('currentUserId', user.id)
-  localStorage.setItem('currentUser', JSON.stringify(user))
-  showUserSwitcher.value = false
-  
-  window.location.reload()
 }
 
 const loadCurrentUser = () => {
@@ -165,18 +144,13 @@ onMounted(() => {
 
 .current-user {
   border-bottom: 1px solid #e4e7ed;
+  background: #fff;
 }
 
 .current-user-info {
   display: flex;
   align-items: center;
   padding: 12px 20px;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-.current-user-info:hover {
-  background: #e9ecef;
 }
 
 .user-avatar {
@@ -216,72 +190,22 @@ onMounted(() => {
   color: #909399;
 }
 
-.switch-icon {
-  color: #909399;
-  font-size: 12px;
-  transition: transform 0.3s;
-}
-
-.user-switcher {
-  background: #fff;
-  border-top: 1px solid #e4e7ed;
-  max-height: 300px;
-  overflow-y: auto;
-}
-
-.switcher-header {
-  padding: 10px 20px;
-  font-size: 12px;
-  color: #909399;
-  border-bottom: 1px solid #e4e7ed;
-}
-
-.user-option {
-  display: flex;
-  align-items: center;
-  padding: 10px 20px;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-.user-option:hover {
-  background: #f5f7fa;
-}
-
-.user-option.active {
-  background: #e6f7ff;
-}
-
-.option-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: #409eff;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  margin-right: 10px;
-  overflow: hidden;
-}
-
-.option-avatar img {
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.option-name {
-  font-size: 13px;
-  color: #303133;
-}
-
-.chat-list {
+.friends-section {
   flex: 1;
   overflow-y: auto;
   padding: 10px;
+}
+
+.section-header {
+  font-size: 12px;
+  color: #909399;
+  padding: 10px 20px;
+  font-weight: 500;
+}
+
+.chat-list {
+  display: flex;
+  flex-direction: column;
 }
 
 .chat-item {
@@ -325,15 +249,22 @@ onMounted(() => {
   object-fit: cover;
 }
 
-.online-status {
+.status-indicator {
   position: absolute;
   bottom: 0;
   right: 0;
   width: 12px;
   height: 12px;
-  background: #67c23a;
   border: 2px solid #fff;
   border-radius: 50%;
+}
+
+.status-indicator.online {
+  background: #67c23a;
+}
+
+.status-indicator.offline {
+  background: #909399;
 }
 
 .chat-item.active .chat-avatar {

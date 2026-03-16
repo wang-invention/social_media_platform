@@ -156,15 +156,15 @@ const handleSubmit = async () => {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #f0f2f5;
 }
 
 .login-box {
   width: 400px;
   padding: 40px;
   background: white;
-  border-radius: 10px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
 }
 
 .login-header {
@@ -176,6 +176,7 @@ const handleSubmit = async () => {
   margin: 0;
   color: #333;
   font-size: 24px;
+  font-weight: 500;
 }
 
 .switch-mode {
