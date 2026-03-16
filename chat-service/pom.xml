@@ -50,7 +50,7 @@
     </dependencies>
     <build>
         <!-- 项目名（可选，不影响打包） -->
-        <finalName>chat-service:1.0</finalName>
+        <finalName>chat-service</finalName>
         <plugins>
             <!-- SpringBoot核心打包插件：必须有！生成可执行JAR -->
             <plugin>

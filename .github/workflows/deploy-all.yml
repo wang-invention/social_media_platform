@@ -1,5 +1,4 @@
 name: 全自动部署前后端项目
-
 on:
   push:
     branches:
@@ -11,53 +10,51 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # 1. 部署前端 Vue
-      - name: 构建并部署前端
+      # 整个项目只需要一次 git pull！
+      - name: 拉取最新代码 + 部署全部服务
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: root
           key: ${{ secrets.SERVER_KEY }}
           script: |
-            cd /root/wang/chat-vue1
+            # ==============================================
+            # 进入 你的项目根目录（只在这里 git pull 一次）
+            # ==============================================
+            cd /root/wang/project/social_media_platform
+
+            # 拉最新代码（一次拉取前后端所有服务）
             git pull
+
+            # ==============================================
+            # 1. 部署前端
+            # ==============================================
+            cd chat_vue
             npm run build
             docker stop vue-front || true
             docker rm vue-front || true
-            docker rmi vue-front:1.0
+            docker rmi vue-front:1.0 || true
             docker build -t vue-front:1.0 .
             docker run -d --name vue-front -p 80:80 vue-front:1.0
 
-      # 2. 部署用户服务 user-service
-      - name: 部署 user-service
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: root
-          key: ${{ secrets.SERVER_KEY }}
-          script: |
-            cd /root/wang/user-service
-            git pull
+            # ==============================================
+            # 2. 部署 user-service
+            # ==============================================
+            cd ../user-service
             mvn clean package -DskipTests
             docker stop user-service || true
             docker rm user-service || true
-            docker rmi user-service:1.0
+            docker rmi user-service:1.0 || true
             docker build -t user-service:1.0 .
             docker run -d -p 8081:8081 --name user-service user-service:1.0
 
-      # 3. 部署聊天服务 chat-service
-      - name: 部署 chat-service
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: root
-          key: ${{ secrets.SERVER_KEY }}
-          script: |
-            cd /root/wang/chat-service
-            git pull
+            # ==============================================
+            # 3. 部署 chat-service
+            # ==============================================
+            cd ../chat-service
             mvn clean package -DskipTests
             docker stop chat-service || true
             docker rm chat-service || true
-            docker rmi chat-service:1.0
+            docker rmi chat-service:1.0 || true
             docker build -t chat-service:1.0 .
             docker run -d -p 8082:8082 --name chat-service chat-service:1.0
