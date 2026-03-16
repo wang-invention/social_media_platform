@@ -83,8 +83,8 @@ const loadCurrentUserInfo = async () => {
 }
 
 const connectWebSocket = () => {
-  const wsUrl = `ws://129.211.0.210:8082/chat/${currentUserId.value}`
-  // const wsUrl = `ws://localhost:8080/chat/${currentUserId.value}`
+  // const wsUrl = `ws://129.211.0.210:8082/chat/${currentUserId.value}`
+  const wsUrl = `ws://localhost:8080/chat/${currentUserId.value}`
   console.log('正在连接WebSocket:', wsUrl)
   websocket.value = new WebSocket(wsUrl)
 

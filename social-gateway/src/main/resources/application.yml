@@ -31,4 +31,4 @@ spring:
         - id: chat-service
           uri: http://127.0.0.1:8082
           predicates:
-            - Path=/chat/**, /ws/**, /message/**
+            - Path=/chat-messages/**, /ws/**, /chat/**
