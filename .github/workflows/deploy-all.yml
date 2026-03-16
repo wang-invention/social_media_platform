@@ -40,7 +40,7 @@ jobs:
             # 2. 部署 user-service
             # ==============================================
             cd ../user-service
-            mvn clean package -DskipTests
+            mvn clean package -DskipTests -s settings.xml
             docker stop user-service || true
             docker rm user-service || true
             docker rmi user-service:1.0 || true
@@ -51,7 +51,7 @@ jobs:
             # 3. 部署 chat-service
             # ==============================================
             cd ../chat-service
-            mvn clean package -DskipTests
+            mvn clean package -DskipTests -s settings.xml
             docker stop chat-service || true
             docker rm chat-service || true
             docker rmi chat-service:1.0 || true
